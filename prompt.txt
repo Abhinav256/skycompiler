@@ -1,0 +1,799 @@
+# AI Prompt — Design a World-Class Online Compiler (Sky Blue Cloud Theme)
+
+Design a **modern, premium, world-class online compiler and code editor** for an educational platform. The interface should rival or surpass **LeetCode, HackerRank, Replit, VS Code Web, and CodeSandbox** in usability while maintaining a clean, beginner-friendly experience.
+
+## Theme & Visual Style
+
+Create a futuristic, minimal, and elegant interface inspired by **cloud computing**.
+
+### Color Palette
+
+* Primary: Sky Blue (#38BDF8)
+* Secondary: Azure Blue (#0EA5E9)
+* Accent: White (#FFFFFF)
+* Background: Soft Sky Gradient
+* Light Cloud Shadows
+* Frosted Glass (Glassmorphism)
+* Rounded Corners (16–20px)
+* Soft Blue Glow Effects
+* Subtle Floating Cloud Animations
+
+The UI should feel like **coding above the clouds**, giving users the sensation of programming in an anti-gravity environment.
+
+Avoid dark or hacker-style themes by default. Prioritize clarity, professionalism, and comfort for long coding sessions.
+
+---
+
+# Layout
+
+Create a responsive three-panel layout.
+
+---
+
+## Top Navigation
+
+Left:
+
+* Platform Logo
+* Compiler Name
+
+Center:
+
+* Current Language
+* Current File Name
+
+Right:
+
+* Run
+* Stop
+* Save
+* Reset
+* Download
+* Full Screen
+* Settings
+* Theme Toggle
+
+---
+
+Main Layout
+
+LEFT PANEL (65%)
+
+Professional Monaco-based Code Editor
+
+RIGHT PANEL (35%)
+
+Upper Section:
+Input Console
+
+Lower Section:
+Output Console
+
+Resizable divider between editor and console.
+
+Users should be able to drag the divider.
+
+---
+
+# Supported Languages
+
+The compiler must support:
+
+* C
+* C++
+* Java
+* Python
+* JavaScript
+* TypeScript
+* HTML
+* CSS
+* SQL
+* Go
+* Rust
+* Kotlin
+* Swift
+* PHP
+* Ruby
+* C#
+* Bash
+* Dart
+
+For web development:
+
+HTML + CSS + JavaScript should automatically run together as a complete web project with a live preview.
+
+---
+
+# Editor Features
+
+Professional code editor with:
+
+* Automatic indentation
+* Smart formatting
+* Auto closing brackets
+* Auto closing quotes
+* Syntax highlighting
+* Line numbers
+* Word wrap
+* Multiple cursors
+* Code folding
+* Search
+* Replace
+* Find All
+* Undo
+* Redo
+* Zoom In
+* Zoom Out
+* Auto Save
+* Minimap
+* Breadcrumb navigation
+* Error highlighting
+* Warning highlighting
+* IntelliSense-style suggestions
+* Snippet support
+* Hover documentation
+* Keyboard shortcuts
+* Smooth scrolling
+* Current line highlighting
+* Matching bracket highlight
+* Sticky headers
+* Go To Line
+* Command Palette
+* Font Size control
+
+---
+
+# Input Panel
+
+Dedicated input console.
+
+Features:
+
+* Multi-line input
+* Paste support
+* Clear button
+* Sample input
+* Custom input
+* Input history
+
+---
+
+# Output Panel
+
+Professional execution console.
+
+Features:
+
+* Standard output
+* Runtime errors
+* Compilation errors
+* Execution time
+* Memory usage
+* Exit code
+* Copy Output
+* Download Output
+* Clear Console
+
+Color code:
+
+Green
+Success
+
+Red
+Errors
+
+Orange
+Warnings
+
+Blue
+Information
+
+---
+
+# HTML/CSS/JS Workspace
+
+When Web is selected:
+
+Editor automatically shows:
+
+HTML
+
+CSS
+
+JavaScript
+
+tabs
+
+Alongside a live browser preview.
+
+Changes update instantly.
+
+Browser toolbar:
+
+Refresh
+
+Open in New Tab
+
+Responsive Mode
+
+Desktop
+
+Tablet
+
+Mobile
+
+---
+
+# Language Switching
+
+Beautiful dropdown with logos.
+
+Examples:
+
+🐍 Python
+
+☕
+
+Java
+
+⚙ C
+
+⚙ C++
+
+🌐 Web (HTML/CSS/JS)
+
+🟨 JavaScript
+
+Changing language automatically loads a starter template.
+
+---
+
+# Run Experience
+
+When Run is clicked:
+
+Button transforms into:
+
+Running...
+
+Animated loading indicator
+
+Compilation progress animation
+
+Success animation
+
+Error animation
+
+Execution summary
+
+Execution should feel smooth and premium.
+
+---
+
+# User Experience
+
+The interface should feel:
+
+* Extremely clean
+* Beginner friendly
+* Professional
+* Premium
+* Modern
+* Fast
+* Educational
+* Minimal
+* Highly responsive
+
+Every animation should be smooth (200–300ms).
+
+---
+
+# Accessibility
+
+* Fully keyboard accessible
+* Screen reader friendly
+* High contrast mode
+* Adjustable font sizes
+* Responsive on desktop, tablet, and mobile
+
+---
+
+# Performance
+
+* Instant editor loading
+* Smooth typing
+* No UI lag
+* Optimized rendering
+* Lazy loading where appropriate
+
+---
+
+# Overall Goal
+
+Design a compiler that feels like the **future of online programming education**.
+
+Students should immediately feel that this is a premium coding environment where they can learn, experiment, build, debug, and execute programs with confidence.
+
+The final design should be visually stunning, intuitive, scalable, production-ready, and worthy of becoming the flagship compiler experience for a modern EdTech platform.
+
+
+
+# AI Prompt — Build the Backend Logic for a Professional Multi-Language Online Compiler
+
+Design the complete backend architecture for an enterprise-grade online compiler similar to LeetCode, HackerRank, Replit, and CodeChef. The system must be secure, scalable, and support multiple programming languages.
+
+---
+
+# Overall Execution Flow
+
+```
+Student
+
+↓
+
+Writes Code
+
+↓
+
+Clicks RUN
+
+↓
+
+Frontend sends code, language and stdin
+
+↓
+
+Backend API receives request
+
+↓
+
+Validate Request
+
+↓
+
+Create Unique Execution ID
+
+↓
+
+Create Temporary Workspace
+
+↓
+
+Generate Source File
+
+↓
+
+Compile (if required)
+
+↓
+
+Execute Program
+
+↓
+
+Capture Output
+
+↓
+
+Capture Errors
+
+↓
+
+Measure Runtime
+
+↓
+
+Measure Memory
+
+↓
+
+Delete Temporary Files
+
+↓
+
+Return Result
+
+↓
+
+Display Output
+```
+
+---
+
+# Request Payload
+
+The frontend sends:
+
+```json
+{
+  "language":"python",
+  "code":"print(input())",
+  "stdin":"Hello",
+  "version":"latest"
+}
+```
+
+---
+
+# Backend
+
+Example API
+
+POST
+
+```
+/api/compiler/run
+```
+
+---
+
+# Step 1
+
+Validate
+
+Check
+
+* language exists
+* code not empty
+* code length limit
+* input size limit
+
+Reject invalid requests.
+
+---
+
+# Step 2
+
+Generate Execution ID
+
+Example
+
+```
+2ab98e11
+```
+
+Every execution gets its own isolated folder.
+
+Example
+
+```
+/temp/2ab98e11/
+```
+
+---
+
+# Step 3
+
+Create Temporary Directory
+
+```
+mkdir temp/2ab98e11
+```
+
+Inside
+
+```
+temp/
+   2ab98e11/
+```
+
+---
+
+# Step 4
+
+Create Source File
+
+Python
+
+```
+main.py
+```
+
+Java
+
+```
+Main.java
+```
+
+C
+
+```
+main.c
+```
+
+C++
+
+```
+main.cpp
+```
+
+JavaScript
+
+```
+main.js
+```
+
+HTML
+
+```
+index.html
+style.css
+script.js
+```
+
+Write the student's code into these files.
+
+---
+
+# Step 5
+
+Compile
+
+Languages like Python
+
+Skip compilation.
+
+Languages like C
+
+```
+gcc main.c -o main
+```
+
+Languages like C++
+
+```
+g++ main.cpp -o main
+```
+
+Languages like Java
+
+```
+javac Main.java
+```
+
+Compilation errors are captured and returned immediately.
+
+---
+
+# Step 6
+
+Execute
+
+Python
+
+```
+python main.py
+```
+
+Java
+
+```
+java Main
+```
+
+C
+
+```
+./main
+```
+
+C++
+
+```
+./main
+```
+
+Node
+
+```
+node main.js
+```
+
+---
+
+# Step 7
+
+Pass Input
+
+Student Input
+
+```
+10
+20
+```
+
+is piped into the running program.
+
+Example
+
+```
+stdin
+
+↓
+
+Program
+
+↓
+
+Output
+```
+
+---
+
+# Step 8
+
+Capture Everything
+
+Collect
+
+stdout
+
+stderr
+
+exit code
+
+execution time
+
+memory
+
+compile log
+
+runtime log
+
+---
+
+# Step 9
+
+Timeout Protection
+
+If execution exceeds
+
+2–5 seconds
+
+terminate the process automatically.
+
+Prevent infinite loops.
+
+---
+
+# Step 10
+
+Memory Limit
+
+Example
+
+256 MB
+
+Terminate programs exceeding the limit.
+
+---
+
+# Step 11
+
+Security
+
+Never execute code directly on the host system.
+
+Each execution must run inside an isolated Docker container.
+
+Container
+
+↓
+
+Compile
+
+↓
+
+Execute
+
+↓
+
+Destroy
+
+No execution should have access to the host filesystem, network, or other users' code.
+
+---
+
+# Step 12
+
+Delete Temporary Files
+
+After execution:
+
+```
+Delete
+
+temp/
+
+↓
+
+Delete Container
+
+↓
+
+Release Memory
+```
+
+Never leave source code on the server.
+
+---
+
+# Response
+
+Return
+
+```json
+{
+  "success":true,
+  "stdout":"30",
+  "stderr":"",
+  "compileError":"",
+  "runtime":"0.14s",
+  "memory":"18MB",
+  "exitCode":0
+}
+```
+
+---
+
+# HTML/CSS/JavaScript Logic
+
+If language = Web
+
+Create
+
+```
+index.html
+style.css
+script.js
+```
+
+Inject HTML
+
+Link CSS
+
+Load JS
+
+Serve the temporary project
+
+Render it inside a secure iframe sandbox
+
+Return the preview URL to the frontend.
+
+---
+
+# Folder Structure
+
+```
+compiler/
+
+├── api/
+├── execution/
+├── docker/
+├── templates/
+├── temp/
+├── logs/
+├── workers/
+├── sandbox/
+└── cleanup/
+```
+
+---
+
+# Future Scalability
+
+Design the compiler so it can later support:
+
+* Multiple execution workers
+* Execution queue
+* Redis/BullMQ job scheduling
+* Horizontal scaling
+* Load balancing
+* Execution history
+* Saved code
+* Custom test cases
+* Multiple files/projects
+* AI-assisted code explanation
+* Online judge mode for coding challenges
+
+The architecture should be modular so new programming languages can be added with minimal changes and execution remains secure, isolated, and production-ready.
