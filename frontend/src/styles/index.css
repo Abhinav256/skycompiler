@@ -510,6 +510,17 @@ body {
   color: var(--text-secondary);
 }
 
+.settings-key {
+  display: inline-block;
+  padding: 1px 4px;
+  border: 1px solid var(--surface-border);
+  border-radius: 4px;
+  background: var(--surface-elevated);
+  color: var(--text-primary);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.9em;
+}
+
 .tooltip-wrapper:hover .tooltip-content {
   opacity: 1;
   transform: translateX(-50%) translateY(0);

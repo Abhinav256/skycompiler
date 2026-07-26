@@ -11,7 +11,13 @@ const { spawn } = require("child_process");
  */
 function runLocally({ workspaceDir, command, stdin, timeoutMs }) {
   return new Promise((resolve) => {
-    const child = spawn("sh", ["-c", command], { cwd: workspaceDir });
+    // Local development supports both Unix-like systems and Windows. The
+    // configured commands are shell commands, so use the host's native shell
+    // instead of assuming `/bin/sh` exists (it does not on standard Windows).
+    const isWindows = process.platform === "win32";
+    const shell = isWindows ? process.env.ComSpec || "cmd.exe" : "sh";
+    const args = isWindows ? ["/d", "/s", "/c", command] : ["-c", command];
+    const child = spawn(shell, args, { cwd: workspaceDir });
 
     let stdout = "";
     let stderr = "";

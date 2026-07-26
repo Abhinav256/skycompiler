@@ -122,7 +122,7 @@ export default function TopNav({
 
         <IconBtn label="Settings" shortcut="⌘," onClick={onOpenSettings}><SettingsIcon size={15} /></IconBtn>
         <IconBtn label={darkMode ? "Light mode" : "Dark mode"} onClick={onToggleTheme} active={darkMode}>
-          {darkMode ? <MoonIcon size={15} /> : <SunIcon size={15} />}
+          {darkMode ? <SunIcon size={15} /> : <MoonIcon size={15} />}
         </IconBtn>
       </div>
     </header>
