@@ -18,7 +18,9 @@ const LANGUAGES = {
     label: "Python",
     fileName: "main.py",
     compile: null,
-    run: "python3 main.py",
+    // Windows commonly exposes the real interpreter as `python`, while
+    // `python3` may only be a Microsoft Store alias. Docker/Linux use python3.
+    run: process.platform === "win32" ? "python main.py" : "python3 main.py",
     dockerImage: "skycompiler-python:latest",
     timeoutMs: 5000,
     memoryMb: 256,
