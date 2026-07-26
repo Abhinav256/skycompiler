@@ -33,8 +33,8 @@ export default function SettingsPanel({ open, onClose, fontSize, setFontSize, mi
         </label>
 
         <p className="text-xs text-mist mt-4">
-          Keyboard: <kbd className="px-1 bg-white/70 rounded">Ctrl/Cmd+Shift+P</kbd> command palette,{" "}
-          <kbd className="px-1 bg-white/70 rounded">Ctrl/Cmd+G</kbd> go to line.
+          Keyboard: <kbd className="settings-key">Ctrl/Cmd+Shift+P</kbd> command palette,{" "}
+          <kbd className="settings-key">Ctrl/Cmd+G</kbd> go to line.
         </p>
       </div>
     </div>

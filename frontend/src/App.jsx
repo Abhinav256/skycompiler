@@ -41,7 +41,7 @@ export default function App() {
   const [previewHtml, setPreviewHtml] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [fontSize, setFontSize] = useState(15);
-  const [minimapEnabled, setMinimapEnabled] = useState(true);
+  const [minimapEnabled, setMinimapEnabled] = useState(false);
   const [highContrast, setHighContrast] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -57,6 +57,13 @@ export default function App() {
       if (data.languages?.length) setLanguages(data.languages);
     });
   }, []);
+
+  // The page background lives on <body>, so the theme class must be on the
+  // document root for its CSS variables to cascade across the full viewport.
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+    return () => document.documentElement.classList.remove("dark");
+  }, [darkMode]);
 
   // Debounced auto-save to localStorage
   useEffect(() => {
@@ -203,6 +210,7 @@ export default function App() {
                 <CodeEditor
                   value={activeCode}
                   language={activeLangForEditor}
+                  darkMode={darkMode}
                   fontSize={fontSize}
                   minimapEnabled={minimapEnabled}
                   onMount={handleEditorMount}

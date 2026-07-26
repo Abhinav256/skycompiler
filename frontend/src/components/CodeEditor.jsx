@@ -131,7 +131,7 @@ export default function CodeEditor({
               { token: "type", foreground: "7DD3FC" },
             ],
             colors: {
-              "editor.background": "#00000000",
+              "editor.background": "#0F1E32",
               "editor.lineHighlightBackground": "#38BDF808",
               "editor.lineHighlightBorder": "#38BDF810",
               "editorLineNumber.foreground": "#4A7A94",
@@ -156,7 +156,12 @@ export default function CodeEditor({
           fontFamily: "JetBrains Mono, monospace",
           fontLigatures: true,
           automaticLayout: true,
-          minimap: { enabled: minimapEnabled, scale: 1 },
+          minimap: {
+            enabled: minimapEnabled,
+            size: "fit",
+            maxColumn: 80,
+            scale: 1,
+          },
           wordWrap: "on",
           autoClosingBrackets: "always",
           autoClosingQuotes: "always",
