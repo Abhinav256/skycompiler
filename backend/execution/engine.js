@@ -32,6 +32,7 @@ async function executeCode({ language, code, stdin }) {
     memoryMb: null,
     exitCode: null,
     timedOut: false,
+    inputRequired: false,
   };
 
   const exec = (command, timeoutMs) =>
@@ -64,15 +65,22 @@ async function executeCode({ language, code, stdin }) {
         : runLocally({ workspaceDir, command, stdin, timeoutMs });
 
     const runResult = await runExec(config.run, config.timeoutMs);
+    const inputRequired =
+      !stdin.trim() &&
+      language === "python" &&
+      /EOFError: EOF when reading a line/.test(runResult.stderr);
 
     result.stdout = runResult.stdout;
-    result.stderr = runResult.stderr;
+    // An empty input stream is an expected user interaction, not a code error.
+    // Hide Python's traceback and let the UI ask for stdin instead.
+    result.stderr = inputRequired ? "" : runResult.stderr;
     result.exitCode = runResult.exitCode;
     result.timedOut = runResult.timedOut;
+    result.inputRequired = inputRequired;
     result.runtimeMs = runResult.runtimeMs;
     result.success = runResult.exitCode === 0 && !runResult.timedOut;
 
-    if (!result.success) {
+    if (!result.success && !inputRequired) {
       const { diagnostics, hint } = parseDiagnostics(language, result.stderr);
       result.diagnostics = diagnostics;
       result.hint = hint;

@@ -22,10 +22,13 @@ const StatCard = ({ icon, label, value }) => (
 export default function OutputPanel({ result, isRunning, onCopy, onDownload, onClear, onJumpToLine }) {
   const hasCompileError = result?.compileError;
   const hasRuntimeError = !hasCompileError && result?.stderr;
+  const inputRequired = result?.inputRequired;
   const status = isRunning
     ? "running"
     : hasCompileError
     ? "compile-error"
+    : inputRequired
+    ? "input-required"
     : hasRuntimeError
     ? "runtime-error"
     : result?.success
@@ -38,6 +41,7 @@ export default function OutputPanel({ result, isRunning, onCopy, onDownload, onC
     success: { color: "var(--color-success)", label: "Success", icon: <CheckCircleIcon size={13} className="animate-success-pop" /> },
     "runtime-error": { color: "var(--color-danger)", label: "Runtime Error", icon: <AlertCircleIcon size={13} className="animate-shake" /> },
     "compile-error": { color: "var(--color-danger)", label: "Compilation Error", icon: <AlertCircleIcon size={13} className="animate-shake" /> },
+    "input-required": { color: "var(--color-warning)", label: "Input required", icon: <AlertCircleIcon size={13} /> },
   };
 
   const { color, label, icon } = statusConfig[status];
@@ -138,6 +142,19 @@ export default function OutputPanel({ result, isRunning, onCopy, onDownload, onC
           <pre className="whitespace-pre-wrap mb-2 animate-fadeIn" style={{ color: "var(--text-primary)" }}>
             {result.stdout}
           </pre>
+        )}
+
+        {/* Missing standard input */}
+        {!isRunning && inputRequired && (
+          <div
+            className="flex items-center gap-2 px-3 py-2 rounded-lg animate-fadeIn"
+            style={{ background: "var(--color-warning-bg)", color: "var(--color-warning)" }}
+          >
+            <AlertCircleIcon size={15} />
+            <span className="text-xs font-medium">
+              This program needs input. Enter a value in the Input panel, then run it again.
+            </span>
+          </div>
         )}
 
         {/* Runtime error */}
