@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import CloudField from "./components/CloudField";
 import TopNav from "./components/TopNav";
 import CodeEditor from "./components/CodeEditor";
@@ -10,7 +10,9 @@ import SettingsPanel from "./components/SettingsPanel";
 import { runCode, fetchLanguages } from "./lib/api";
 import { TEMPLATES, WEB_TEMPLATE, SAMPLE_INPUT } from "./lib/templates";
 
-const STORAGE_KEY = "skycompiler:save";
+// sessionStorage survives reloads, but is cleared when the browser tab is closed.
+// This keeps each tab's work isolated and avoids leaving old code on shared devices.
+const STORAGE_KEY = "skycompiler:tab-session";
 const LANG_FALLBACK = [
   { id: "python", label: "Python" },
   { id: "c", label: "C" },
@@ -29,21 +31,34 @@ const FILE_NAMES = {
   web: "index.html",
 };
 
+const getSavedSession = () => {
+  try {
+    return JSON.parse(sessionStorage.getItem(STORAGE_KEY) || "{}");
+  } catch {
+    return {};
+  }
+};
+
 export default function App() {
+  const savedSession = getSavedSession();
   const [languages, setLanguages] = useState(LANG_FALLBACK);
-  const [language, setLanguage] = useState("python");
-  const [code, setCode] = useState(TEMPLATES.python);
-  const [webFiles, setWebFiles] = useState(WEB_TEMPLATE);
-  const [webTab, setWebTab] = useState("html");
-  const [stdin, setStdin] = useState("");
+  const [language, setLanguage] = useState(savedSession.language || "python");
+  const [codeByLanguage, setCodeByLanguage] = useState(() => ({
+    ...(savedSession.codeByLanguage || {}),
+    // Keep drafts saved by earlier versions of the app.
+    ...(savedSession.code ? { [savedSession.language || "python"]: savedSession.code } : {}),
+  }));
+  const [webFiles, setWebFiles] = useState(() => ({ ...WEB_TEMPLATE, ...(savedSession.webFiles || {}) }));
+  const [webTab, setWebTab] = useState(savedSession.webTab || "html");
+  const [stdin, setStdin] = useState(savedSession.stdin || "");
   const [inputHistory, setInputHistory] = useState([]);
   const [result, setResult] = useState(null);
   const [previewHtml, setPreviewHtml] = useState("");
   const [isRunning, setIsRunning] = useState(false);
-  const [fontSize, setFontSize] = useState(15);
-  const [minimapEnabled, setMinimapEnabled] = useState(false);
-  const [highContrast, setHighContrast] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [fontSize, setFontSize] = useState(savedSession.fontSize || 15);
+  const [minimapEnabled, setMinimapEnabled] = useState(savedSession.minimapEnabled || false);
+  const [highContrast, setHighContrast] = useState(savedSession.highContrast || false);
+  const [darkMode, setDarkMode] = useState(savedSession.darkMode || false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const editorRef = useRef(null);
@@ -65,21 +80,27 @@ export default function App() {
     return () => document.documentElement.classList.remove("dark");
   }, [darkMode]);
 
-  // Debounced auto-save to localStorage
-  useEffect(() => {
-    const t = setTimeout(() => {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ language, code, webFiles, stdin })
-      );
-    }, 800);
-    return () => clearTimeout(t);
-  }, [language, code, webFiles, stdin]);
+  // Save immediately after every edit so a refresh cannot lose a recent keystroke.
+  useLayoutEffect(() => {
+    sessionStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        language,
+        codeByLanguage,
+        webFiles,
+        webTab,
+        stdin,
+        fontSize,
+        minimapEnabled,
+        highContrast,
+        darkMode,
+      })
+    );
+  }, [language, codeByLanguage, webFiles, webTab, stdin, fontSize, minimapEnabled, highContrast, darkMode]);
 
   const handleLanguageChange = (id) => {
     setLanguage(id);
     setResult(null);
-    if (id !== "web" && !code.trim()) setCode(TEMPLATES[id] || "");
   };
 
   const handleEditorMount = (editor, monaco) => {
@@ -117,7 +138,7 @@ export default function App() {
       return;
     }
 
-    const res = await runCode({ language, code, stdin });
+    const res = await runCode({ language, code: activeCode, stdin });
     setResult(res);
     setIsRunning(false);
     applyDiagnosticsToEditor(res.diagnostics || []);
@@ -131,17 +152,20 @@ export default function App() {
   };
 
   const handleSave = () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ language, code, webFiles, stdin }));
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+      language, codeByLanguage, webFiles, webTab, stdin,
+      fontSize, minimapEnabled, highContrast, darkMode,
+    }));
   };
 
   const handleReset = () => {
     if (isWeb) setWebFiles(WEB_TEMPLATE);
-    else setCode(TEMPLATES[language] || "");
+    else setCodeByLanguage((drafts) => ({ ...drafts, [language]: TEMPLATES[language] || "" }));
     setResult(null);
   };
 
   const handleDownload = () => {
-    const blob = new Blob([isWeb ? webFiles[webTab] : code], { type: "text/plain" });
+    const blob = new Blob([activeCode], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -161,7 +185,7 @@ export default function App() {
     editorRef.current?.focus();
   };
 
-  const activeCode = isWeb ? webFiles[webTab] : code;
+  const activeCode = isWeb ? webFiles[webTab] : (codeByLanguage[language] ?? TEMPLATES[language] ?? "");
   const activeLangForEditor = isWeb ? webTab : language;
 
   return (
@@ -216,7 +240,7 @@ export default function App() {
                   onMount={handleEditorMount}
                   onChange={(val) => {
                     if (isWeb) setWebFiles((f) => ({ ...f, [webTab]: val ?? "" }));
-                    else setCode(val ?? "");
+                    else setCodeByLanguage((drafts) => ({ ...drafts, [language]: val ?? "" }));
                   }}
                 />
               </div>
