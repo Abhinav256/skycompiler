@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 
 const MONACO_LANG_MAP = {
@@ -41,11 +41,74 @@ export default function CodeEditor({
   minimapEnabled = true,
   darkMode = false,
   onCursorChange,
+  // Debug decoration props
+  debugLine = null,          // current execution line (blue arrow)
+  executedLines = null,      // Set<number> of already-executed lines (checkmark)
+  exceptionLine = null,      // line with an exception (red bg)
 }) {
   const [loading, setLoading] = useState(true);
+  const editorRef = useRef(null);
+  const monacoRef = useRef(null);
+  const decorationsRef = useRef([]);
+
+  // ── Apply debug decorations whenever debug props change ──────────────────────
+  useEffect(() => {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+    if (!editor || !monaco) return;
+
+    const newDecorations = [];
+
+    // Blue arrow for current line
+    if (debugLine) {
+      newDecorations.push({
+        range: new monaco.Range(debugLine, 1, debugLine, 1),
+        options: {
+          isWholeLine: true,
+          className: "debug-current-line-bg",
+          glyphMarginClassName: "debug-gutter-arrow",
+          glyphMarginHoverMessage: { value: "▶ Executing this line" },
+          zIndex: 10,
+        },
+      });
+    }
+
+    // Exception line — red background
+    if (exceptionLine) {
+      newDecorations.push({
+        range: new monaco.Range(exceptionLine, 1, exceptionLine, 1),
+        options: {
+          isWholeLine: true,
+          className: "debug-exception-line-bg",
+          glyphMarginClassName: "debug-gutter-exception",
+          glyphMarginHoverMessage: { value: "⚠ Exception on this line" },
+          zIndex: 11,
+        },
+      });
+    }
+
+    // ✓ glyphs for executed lines (skip current and exception)
+    if (executedLines) {
+      executedLines.forEach((ln) => {
+        if (ln === debugLine || ln === exceptionLine) return;
+        newDecorations.push({
+          range: new monaco.Range(ln, 1, ln, 1),
+          options: {
+            glyphMarginClassName: "debug-gutter-check",
+            glyphMarginHoverMessage: { value: "✓ Executed" },
+          },
+        });
+      });
+    }
+
+    decorationsRef.current = editor.deltaDecorations(decorationsRef.current, newDecorations);
+  }, [debugLine, executedLines, exceptionLine]);
+
 
   const handleMount = (editor, monaco) => {
     setLoading(false);
+    editorRef.current = editor;
+    monacoRef.current = monaco;
     if (onMount) onMount(editor, monaco);
 
     // Track cursor position
@@ -184,6 +247,7 @@ export default function CodeEditor({
           guides: { indentation: true, bracketPairs: true },
           padding: { top: 12, bottom: 12 },
           lineDecorationsWidth: 10,
+          glyphMargin: true,   // required for gutter icons (debug arrow/checkmark)
           // Command palette, Find/Replace/Find-All, Go To Line are all
           // reachable via default keybindings (Ctrl/Cmd+Shift+P, Ctrl/Cmd+F, Ctrl/Cmd+G).
         }}
