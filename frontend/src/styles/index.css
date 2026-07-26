@@ -1059,3 +1059,483 @@ button:focus:not(:focus-visible) {
     width: 100%;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   DEBUGGER — Step Debugger Styles
+   All debugger UI components are scoped under .debug-* / .var-* / .ov-*
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Monaco Gutter Decorations ───────────────────────────────────── */
+.debug-gutter-arrow {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpolygon points='3,3 13,8 3,13' fill='%2338BDF8'/%3E%3C/svg%3E") center / 12px no-repeat;
+  cursor: pointer;
+}
+
+.debug-gutter-check {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpolyline points='3,8 6,12 13,4' stroke='%2316A34A' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 12px no-repeat;
+  opacity: 0.8;
+}
+
+.debug-gutter-exception {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23DC2626' opacity='0.9'/%3E%3Cline x1='8' y1='5' x2='8' y2='9' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='8' cy='11.5' r='1' fill='white'/%3E%3C/svg%3E") center / 12px no-repeat;
+}
+
+.debug-current-line-bg {
+  background: rgba(56, 189, 248, 0.08) !important;
+  border-left: 2px solid #38BDF8 !important;
+  transition: all 0.15s ease;
+}
+
+.dark .debug-current-line-bg {
+  background: rgba(56, 189, 248, 0.12) !important;
+}
+
+.debug-exception-line-bg {
+  background: rgba(220, 38, 38, 0.10) !important;
+  border-left: 2px solid #DC2626 !important;
+}
+
+.dark .debug-exception-line-bg {
+  background: rgba(220, 38, 38, 0.15) !important;
+}
+
+/* ── Debug Controls Bar ──────────────────────────────────────────── */
+.debug-controls-bar {
+  margin-top: 6px;
+  padding: 8px 10px 6px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--surface-border-subtle);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(var(--blur-control));
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.debug-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.debug-badge-icon {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9333EA;
+  letter-spacing: 0.03em;
+  padding: 2px 8px;
+  background: rgba(147, 51, 234, 0.10);
+  border-radius: 6px;
+  border: 1px solid rgba(147, 51, 234, 0.20);
+}
+
+.debug-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.debug-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.debug-nav-btn:hover:not(:disabled) {
+  background: var(--surface-overlay);
+  color: var(--sky-secondary);
+  border-color: var(--surface-border);
+}
+
+.debug-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.debug-step-counter {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 10px;
+  background: var(--surface-base);
+  border: 1px solid var(--surface-border-subtle);
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  min-width: 70px;
+  justify-content: center;
+}
+
+.debug-step-num {
+  color: #38BDF8;
+  font-weight: 700;
+}
+
+.debug-step-sep {
+  color: var(--text-muted);
+}
+
+.debug-step-total {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.debug-truncation-warning {
+  font-size: 10px;
+  color: var(--color-warning);
+  background: var(--color-warning-bg);
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-weight: 600;
+}
+
+/* ── Progress Bar ────────────────────────────────────────────────── */
+.debug-progress-track {
+  height: 3px;
+  background: var(--surface-base);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.debug-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38BDF8 0%, #9333EA 100%);
+  border-radius: 999px;
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Exception Banner (in controls bar) ─────────────────────────── */
+.debug-exception-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 5px 8px;
+  background: rgba(220, 38, 38, 0.10);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  border-radius: 6px;
+  font-size: 11.5px;
+  color: var(--color-danger);
+  line-height: 1.4;
+  animation: fadeInDown 0.15s ease;
+}
+
+.debug-exception-type {
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  margin-right: 3px;
+}
+
+.debug-exception-msg {
+  color: var(--color-danger);
+  opacity: 0.85;
+  word-break: break-word;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Debug Button (in TopNav) ────────────────────────────────────── */
+.btn-debug {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.15) 0%, rgba(79, 70, 229, 0.15) 100%);
+  border: 1px solid rgba(147, 51, 234, 0.35);
+  color: #9333EA;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.btn-debug:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.25) 0%, rgba(79, 70, 229, 0.25) 100%);
+  border-color: rgba(147, 51, 234, 0.55);
+  box-shadow: 0 0 16px rgba(147, 51, 234, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-debug:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-debug:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dark .btn-debug {
+  color: #C084FC;
+  border-color: rgba(192, 132, 252, 0.35);
+  background: linear-gradient(135deg, rgba(192, 132, 252, 0.12) 0%, rgba(129, 140, 248, 0.12) 100%);
+}
+
+.btn-stop-debug {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.12) 0%, rgba(239, 68, 68, 0.12) 100%);
+  border: 1px solid rgba(220, 38, 38, 0.30);
+  color: var(--color-danger);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.btn-stop-debug:hover {
+  background: rgba(220, 38, 38, 0.20);
+  border-color: rgba(220, 38, 38, 0.50);
+  box-shadow: 0 0 12px rgba(220, 38, 38, 0.20);
+}
+
+/* ── Debug Panel ─────────────────────────────────────────────────── */
+.debug-fn-tag {
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  color: #9333EA;
+  background: rgba(147, 51, 234, 0.10);
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-left: 4px;
+}
+
+.debug-event-tag {
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-left: 4px;
+  font-weight: 600;
+}
+
+.debug-event-return {
+  color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.debug-tab-row {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.debug-tab {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  color: var(--text-muted);
+  background: transparent;
+  transition: all var(--transition-fast);
+}
+
+.debug-tab:hover {
+  color: var(--text-primary);
+  background: var(--surface-base);
+}
+
+.debug-tab.active {
+  color: var(--sky-secondary);
+  background: var(--color-info-bg);
+  border-color: rgba(14, 165, 233, 0.20);
+}
+
+.debug-exception-inline {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(220, 38, 38, 0.08);
+  border-bottom: 1px solid rgba(220, 38, 38, 0.20);
+  color: var(--color-danger);
+  font-size: 12px;
+  animation: fadeInDown 0.15s ease;
+}
+
+.debug-exception-msg-sm {
+  font-size: 11px;
+  opacity: 0.8;
+  font-family: 'JetBrains Mono', monospace;
+  word-break: break-word;
+}
+
+.debug-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 20px;
+  text-align: center;
+}
+
+/* ── Variable Table ──────────────────────────────────────────────── */
+.var-table {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 12px;
+}
+
+.var-table-header {
+  display: grid;
+  grid-template-columns: 1fr 80px 1fr;
+  gap: 6px;
+  padding: 4px 8px;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--surface-border-subtle);
+  margin-bottom: 2px;
+}
+
+.var-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 1fr;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  align-items: flex-start;
+  animation: varRowIn 0.18s ease;
+  transition: background var(--transition-fast);
+}
+
+.var-row:hover {
+  background: var(--surface-base);
+}
+
+@keyframes varRowIn {
+  from { opacity: 0; transform: translateX(-4px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.var-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-top: 2px;
+}
+
+.var-value {
+  font-family: 'JetBrains Mono', monospace;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.debug-type-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* ── Object Viewer ───────────────────────────────────────────────── */
+.ov-primitive {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.ov-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  transition: color var(--transition-fast);
+}
+
+.ov-toggle:hover {
+  color: var(--text-primary);
+}
+
+.ov-arrow {
+  font-size: 8px;
+  display: inline-block;
+  transition: transform 0.15s ease;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+.ov-len {
+  font-size: 10px;
+}
+
+.ov-collection {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ov-children {
+  padding-left: 14px;
+  border-left: 1px solid var(--surface-border-subtle);
+  margin-left: 5px;
+  margin-top: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ov-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.ov-key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  min-width: 28px;
+}
+
+.ov-collapsed {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Debug Output (stdout replay) ───────────────────────────────── */
+.debug-stdout-pre {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.6;
+  padding: 4px 0;
+}
+
+

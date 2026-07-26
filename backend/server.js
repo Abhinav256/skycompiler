@@ -23,6 +23,7 @@ const runLimiter = rateLimit({
 });
 
 app.use("/api/compiler/run", runLimiter);
+app.use("/api/compiler/debug", runLimiter);
 app.use("/api/compiler", compilerRoutes);
 
 app.get("/api/health", (req, res) => {

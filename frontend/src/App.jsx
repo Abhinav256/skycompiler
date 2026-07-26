@@ -7,7 +7,10 @@ import InputPanel from "./components/InputPanel";
 import OutputPanel from "./components/OutputPanel";
 import WebPreview from "./components/WebPreview";
 import SettingsPanel from "./components/SettingsPanel";
+import DebugControls from "./components/DebugControls";
+import DebugPanel from "./components/DebugPanel";
 import { runCode, fetchLanguages } from "./lib/api";
+import { useDebugger } from "./hooks/useDebugger";
 import { TEMPLATES, WEB_TEMPLATE, SAMPLE_INPUT } from "./lib/templates";
 
 // sessionStorage survives reloads, but is cleared when the browser tab is closed.
@@ -63,7 +66,9 @@ export default function App() {
 
   const editorRef = useRef(null);
   const monacoRef = useRef(null);
-  const abortRef = useRef(null);
+
+  // ── Debugger hook ────────────────────────────────────────────────────────────
+  const debugger_ = useDebugger();
 
   const isWeb = language === "web";
 
@@ -98,9 +103,57 @@ export default function App() {
     );
   }, [language, codeByLanguage, webFiles, webTab, stdin, fontSize, minimapEnabled, highContrast, darkMode]);
 
+  // ── Keyboard shortcuts for debugger ─────────────────────────────────────────
+  useEffect(() => {
+    if (!debugger_.isDebugging) return;
+
+    const handleKey = (e) => {
+      // Only intercept arrow keys when debugger is active
+      if (e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT") return;
+
+      switch (e.key) {
+        case "ArrowRight":
+          e.preventDefault();
+          debugger_.goNext();
+          break;
+        case "ArrowLeft":
+          e.preventDefault();
+          debugger_.goPrev();
+          break;
+        case "Home":
+          e.preventDefault();
+          debugger_.goFirst();
+          break;
+        case "End":
+          e.preventDefault();
+          debugger_.goLast();
+          break;
+        case "Escape":
+          debugger_.exitDebug();
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [debugger_.isDebugging, debugger_.goNext, debugger_.goPrev, debugger_.goFirst, debugger_.goLast, debugger_.exitDebug]);
+
+  // ── Auto-scroll editor to current debug line ─────────────────────────────────
+  useEffect(() => {
+    if (!debugger_.isDebugging || !debugger_.currentStep) return;
+    const line = debugger_.currentStep.line;
+    if (line && editorRef.current) {
+      editorRef.current.revealLineInCenterIfOutsideViewport(line);
+    }
+  }, [debugger_.currentStep, debugger_.isDebugging]);
+
   const handleLanguageChange = (id) => {
     setLanguage(id);
     setResult(null);
+    // Switching language exits debug
+    if (debugger_.isDebugging) debugger_.exitDebug();
   };
 
   const handleEditorMount = (editor, monaco) => {
@@ -151,6 +204,11 @@ export default function App() {
     setIsRunning(false);
   };
 
+  const handleDebug = async () => {
+    if (language !== "python") return;
+    await debugger_.startDebug(activeCode, stdin);
+  };
+
   const handleSave = () => {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
       language, codeByLanguage, webFiles, webTab, stdin,
@@ -162,6 +220,7 @@ export default function App() {
     if (isWeb) setWebFiles(WEB_TEMPLATE);
     else setCodeByLanguage((drafts) => ({ ...drafts, [language]: TEMPLATES[language] || "" }));
     setResult(null);
+    if (debugger_.isDebugging) debugger_.exitDebug();
   };
 
   const handleDownload = () => {
@@ -188,6 +247,12 @@ export default function App() {
   const activeCode = isWeb ? webFiles[webTab] : (codeByLanguage[language] ?? TEMPLATES[language] ?? "");
   const activeLangForEditor = isWeb ? webTab : language;
 
+  // ── Derived debug decoration values ─────────────────────────────────────────
+  const debugLine = debugger_.isDebugging ? (debugger_.currentStep?.line ?? null) : null;
+  const exceptionLine = (debugger_.isDebugging && debugger_.currentStep?.exception)
+    ? debugger_.currentStep.line
+    : null;
+
   return (
     <div className={`h-screen w-screen flex flex-col relative ${highContrast ? "contrast-125" : ""}`}>
       <CloudField />
@@ -207,6 +272,10 @@ export default function App() {
         onOpenSettings={() => setSettingsOpen(true)}
         darkMode={darkMode}
         onToggleTheme={() => setDarkMode((d) => !d)}
+        isDebugging={debugger_.isDebugging}
+        isDebugLoading={debugger_.isLoading}
+        onDebug={handleDebug}
+        onStopDebug={debugger_.exitDebug}
       />
 
       <main className="relative z-10 flex-1 min-h-0 p-4">
@@ -239,11 +308,33 @@ export default function App() {
                   minimapEnabled={minimapEnabled}
                   onMount={handleEditorMount}
                   onChange={(val) => {
+                    // Editing while debugging exits the session
+                    if (debugger_.isDebugging) debugger_.exitDebug();
                     if (isWeb) setWebFiles((f) => ({ ...f, [webTab]: val ?? "" }));
                     else setCodeByLanguage((drafts) => ({ ...drafts, [language]: val ?? "" }));
                   }}
+                  debugLine={debugLine}
+                  executedLines={debugger_.isDebugging ? debugger_.executedLines : null}
+                  exceptionLine={exceptionLine}
                 />
               </div>
+
+              {/* Debug Controls — replaces language selector below editor */}
+              {debugger_.isDebugging && (
+                <DebugControls
+                  currentIndex={debugger_.currentIndex}
+                  totalSteps={debugger_.totalSteps}
+                  isAtFirst={debugger_.isAtFirst}
+                  isAtLast={debugger_.isAtLast}
+                  onFirst={debugger_.goFirst}
+                  onPrev={debugger_.goPrev}
+                  onNext={debugger_.goNext}
+                  onLast={debugger_.goLast}
+                  onGoTo={debugger_.goTo}
+                  currentStep={debugger_.currentStep}
+                  truncated={debugger_.truncated}
+                />
+              )}
             </div>
           }
           second={
@@ -270,22 +361,31 @@ export default function App() {
                   }
                   second={
                     <div className="h-full pt-2">
-                      <OutputPanel
-                        result={result}
-                        isRunning={isRunning}
-                        onCopy={() => navigator.clipboard.writeText(result?.stdout || "")}
-                        onDownload={() => {
-                          const blob = new Blob([result?.stdout || ""], { type: "text/plain" });
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement("a");
-                          a.href = url;
-                          a.download = "output.txt";
-                          a.click();
-                          URL.revokeObjectURL(url);
-                        }}
-                        onClear={() => setResult(null)}
-                        onJumpToLine={jumpToLine}
-                      />
+                      {/* Debug Panel replaces Output Panel while debugging */}
+                      {debugger_.isDebugging || debugger_.isLoading || debugger_.isError ? (
+                        <DebugPanel
+                          currentStep={debugger_.currentStep}
+                          isLoading={debugger_.isLoading}
+                          error={debugger_.error}
+                        />
+                      ) : (
+                        <OutputPanel
+                          result={result}
+                          isRunning={isRunning}
+                          onCopy={() => navigator.clipboard.writeText(result?.stdout || "")}
+                          onDownload={() => {
+                            const blob = new Blob([result?.stdout || ""], { type: "text/plain" });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = "output.txt";
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          }}
+                          onClear={() => setResult(null)}
+                          onJumpToLine={jumpToLine}
+                        />
+                      )}
                     </div>
                   }
                 />
