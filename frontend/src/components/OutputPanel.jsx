@@ -26,14 +26,14 @@ export default function OutputPanel({ result, isRunning, onCopy, onDownload, onC
   const status = isRunning
     ? "running"
     : hasCompileError
-    ? "compile-error"
-    : inputRequired
-    ? "input-required"
-    : hasRuntimeError
-    ? "runtime-error"
-    : result?.success
-    ? "success"
-    : "idle";
+      ? "compile-error"
+      : inputRequired
+        ? "input-required"
+        : hasRuntimeError
+          ? "runtime-error"
+          : result?.success
+            ? "success"
+            : "idle";
 
   const statusConfig = {
     idle: { color: "var(--text-muted)", label: "Ready", icon: null },
@@ -70,10 +70,7 @@ export default function OutputPanel({ result, isRunning, onCopy, onDownload, onC
             <DownloadIcon size={12} />
             Download
           </button>
-          <button onClick={onClear} className="panel-action-btn" title="Clear output">
-            <TrashIcon size={12} />
-            Clear
-          </button>
+
         </div>
       </div>
 
