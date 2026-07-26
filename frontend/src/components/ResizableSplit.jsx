@@ -16,6 +16,10 @@ export default function ResizableSplit({
   const [ratio, setRatio] = useState(initialRatio);
   const [dragging, setDragging] = useState(false);
 
+  useEffect(() => {
+    setRatio(initialRatio);
+  }, [initialRatio]);
+
   const isHorizontal = direction === "horizontal";
 
   const onMouseDown = useCallback(() => setDragging(true), []);

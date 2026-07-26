@@ -20,17 +20,17 @@ import { TerminalIcon, AlertCircleIcon, ListIcon } from "./Icons";
 
 // ── Type badge colors ──────────────────────────────────────────────────────────
 const TYPE_COLORS = {
-  int:       { bg: "rgba(56,189,248,0.12)",  text: "#0EA5E9" },
-  float:     { bg: "rgba(251,191,36,0.12)",  text: "#D97706" },
-  bool:      { bg: "rgba(168,85,247,0.12)",  text: "#9333EA" },
-  str:       { bg: "rgba(34,197,94,0.12)",   text: "#16A34A" },
-  NoneType:  { bg: "rgba(148,163,184,0.12)", text: "#94A3B8" },
-  list:      { bg: "rgba(14,165,233,0.12)",  text: "#0369A1" },
-  tuple:     { bg: "rgba(99,102,241,0.12)",  text: "#4F46E5" },
-  dict:      { bg: "rgba(249,115,22,0.12)",  text: "#C2410C" },
-  set:       { bg: "rgba(20,184,166,0.12)",  text: "#0D9488" },
-  frozenset: { bg: "rgba(20,184,166,0.12)",  text: "#0D9488" },
-  function:  { bg: "rgba(148,163,184,0.12)", text: "#94A3B8" },
+  int: { bg: "rgba(56,189,248,0.12)", text: "#0EA5E9" },
+  float: { bg: "rgba(251,191,36,0.12)", text: "#D97706" },
+  bool: { bg: "rgba(168,85,247,0.12)", text: "#9333EA" },
+  str: { bg: "rgba(34,197,94,0.12)", text: "#16A34A" },
+  NoneType: { bg: "rgba(148,163,184,0.12)", text: "#94A3B8" },
+  list: { bg: "rgba(14,165,233,0.12)", text: "#0369A1" },
+  tuple: { bg: "rgba(99,102,241,0.12)", text: "#4F46E5" },
+  dict: { bg: "rgba(249,115,22,0.12)", text: "#C2410C" },
+  set: { bg: "rgba(20,184,166,0.12)", text: "#0D9488" },
+  frozenset: { bg: "rgba(20,184,166,0.12)", text: "#0D9488" },
+  function: { bg: "rgba(148,163,184,0.12)", text: "#94A3B8" },
 };
 
 function TypeBadge({ typeName }) {
@@ -183,26 +183,9 @@ function VariablesSection({ variables }) {
   );
 }
 
-// ── Output Section ─────────────────────────────────────────────────────────────
-
-function OutputSection({ stdout }) {
-  if (!stdout) {
-    return (
-      <div className="debug-empty-state">
-        <TerminalIcon size={20} style={{ opacity: 0.3 }} />
-        <span>No output yet</span>
-      </div>
-    );
-  }
-  return (
-    <pre className="debug-stdout-pre">{stdout}</pre>
-  );
-}
-
 // ── Main Panel ─────────────────────────────────────────────────────────────────
 
 export default function DebugPanel({ currentStep, isLoading, error }) {
-  const [activeTab, setActiveTab] = useState("vars");
 
   if (isLoading) {
     return (
@@ -255,21 +238,6 @@ export default function DebugPanel({ currentStep, isLoading, error }) {
             <span className="debug-event-tag debug-event-return">↩ return</span>
           )}
         </div>
-        {/* Tabs */}
-        <div className="debug-tab-row">
-          <button
-            className={`debug-tab ${activeTab === "vars" ? "active" : ""}`}
-            onClick={() => setActiveTab("vars")}
-          >
-            Variables
-          </button>
-          <button
-            className={`debug-tab ${activeTab === "output" ? "active" : ""}`}
-            onClick={() => setActiveTab("output")}
-          >
-            Output
-          </button>
-        </div>
       </div>
 
       {/* Exception banner */}
@@ -285,11 +253,7 @@ export default function DebugPanel({ currentStep, isLoading, error }) {
 
       {/* Body */}
       <div className="flex-1 overflow-y-auto px-3 py-2">
-        {activeTab === "vars" ? (
-          <VariablesSection variables={variables} />
-        ) : (
-          <OutputSection stdout={stdout} />
-        )}
+        <VariablesSection variables={variables} />
       </div>
     </div>
   );

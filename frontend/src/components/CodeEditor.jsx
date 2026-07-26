@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
+import { LANGUAGE_KEYWORDS } from "../lib/keywords";
 
 const MONACO_LANG_MAP = {
   python: "python",
@@ -150,6 +151,22 @@ export default function CodeEditor({
         onMount={handleMount}
         theme={themeName}
         beforeMount={(monaco) => {
+          // Register custom keyword suggestions for each supported language
+          Object.entries(LANGUAGE_KEYWORDS).forEach(([langId, keywords]) => {
+            const monacoLangId = MONACO_LANG_MAP[langId] || langId;
+            monaco.languages.registerCompletionItemProvider(monacoLangId, {
+              provideCompletionItems: (model, position) => {
+                const suggestions = keywords.map((kw) => ({
+                  label: kw,
+                  kind: monaco.languages.CompletionItemKind.Keyword,
+                  insertText: kw,
+                  detail: `Keyword for ${langId}`,
+                }));
+                return { suggestions };
+              },
+            });
+          });
+
           // Light theme — tuned to sky blue palette
           monaco.editor.defineTheme("skyLight", {
             base: "vs",

@@ -181,7 +181,7 @@ export default function App() {
     setPreviewHtml("");
 
     if (stdin && !inputHistory.includes(stdin)) {
-      setInputHistory((h) => [stdin, ...h].slice(0, 10));
+      setInputHistory((h) => [stdin, ...h].slice(0, 5));
     }
 
     if (isWeb) {
@@ -281,7 +281,7 @@ export default function App() {
       <main className="relative z-10 flex-1 min-h-0 p-4">
         <ResizableSplit
           direction="horizontal"
-          initialRatio={0.65}
+          initialRatio={debugger_.isDebugging || debugger_.isLoading || debugger_.isError ? 0.5 : 0.65}
           first={
             <div className="h-full flex flex-col pr-2">
               {isWeb && (
@@ -290,9 +290,8 @@ export default function App() {
                     <button
                       key={tab}
                       onClick={() => setWebTab(tab)}
-                      className={`px-3 py-1.5 text-xs font-mono rounded-t-control glass-control ${
-                        webTab === tab ? "shadow-glow text-sky-deep" : "text-mist"
-                      }`}
+                      className={`px-3 py-1.5 text-xs font-mono rounded-t-control glass-control ${webTab === tab ? "shadow-glow text-sky-deep" : "text-mist"
+                        }`}
                     >
                       {tab}
                     </button>
@@ -342,6 +341,83 @@ export default function App() {
               <div className="h-full pl-2">
                 <WebPreview srcDoc={previewHtml} />
               </div>
+            ) : debugger_.isDebugging || debugger_.isLoading || debugger_.isError ? (
+              <div className="h-full pl-2">
+                <ResizableSplit
+                  direction="vertical"
+                  initialRatio={0.5}
+                  first={
+                    <div className="h-full pb-2">
+                      <ResizableSplit
+                        direction="horizontal"
+                        initialRatio={0.5}
+                        first={
+                          <div className="h-full pr-1">
+                            <InputPanel
+                              value={stdin}
+                              onChange={setStdin}
+                              onClear={() => setStdin("")}
+                              history={inputHistory}
+                              onSelectHistory={setStdin}
+                            />
+                          </div>
+                        }
+                        second={
+                          <div className="h-full pl-1">
+                            <OutputPanel
+                              result={
+                                debugger_.isDebugging || debugger_.isLoading
+                                  ? {
+                                      success: !debugger_.currentStep?.exception,
+                                      stdout: debugger_.currentStep?.stdout || "",
+                                      stderr: debugger_.currentStep?.exception
+                                        ? `${debugger_.currentStep.exception.type}: ${debugger_.currentStep.exception.message}`
+                                        : "",
+                                      diagnostics: [],
+                                      hint: null,
+                                      runtimeMs: 0,
+                                      compileMs: 0,
+                                      exitCode: debugger_.currentStep?.exception ? 1 : 0,
+                                    }
+                                  : result
+                              }
+                              isRunning={isRunning || debugger_.isLoading}
+                              onCopy={() => navigator.clipboard.writeText(
+                                debugger_.isDebugging 
+                                  ? (debugger_.currentStep?.stdout || "") 
+                                  : (result?.stdout || "")
+                              )}
+                              onDownload={() => {
+                                const outputText = debugger_.isDebugging 
+                                  ? (debugger_.currentStep?.stdout || "") 
+                                  : (result?.stdout || "");
+                                const blob = new Blob([outputText], { type: "text/plain" });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement("a");
+                                a.href = url;
+                                a.download = "output.txt";
+                                a.click();
+                                URL.revokeObjectURL(url);
+                              }}
+                              onClear={() => setResult(null)}
+                              onJumpToLine={jumpToLine}
+                            />
+                          </div>
+                        }
+                      />
+                    </div>
+                  }
+                  second={
+                    <div className="h-full pt-2">
+                      <DebugPanel
+                        currentStep={debugger_.currentStep}
+                        isLoading={debugger_.isLoading}
+                        error={debugger_.error}
+                      />
+                    </div>
+                  }
+                />
+              </div>
             ) : (
               <div className="h-full pl-2">
                 <ResizableSplit
@@ -352,7 +428,6 @@ export default function App() {
                       <InputPanel
                         value={stdin}
                         onChange={setStdin}
-                        onLoadSample={() => setStdin(SAMPLE_INPUT[language] || "")}
                         onClear={() => setStdin("")}
                         history={inputHistory}
                         onSelectHistory={setStdin}
@@ -361,31 +436,22 @@ export default function App() {
                   }
                   second={
                     <div className="h-full pt-2">
-                      {/* Debug Panel replaces Output Panel while debugging */}
-                      {debugger_.isDebugging || debugger_.isLoading || debugger_.isError ? (
-                        <DebugPanel
-                          currentStep={debugger_.currentStep}
-                          isLoading={debugger_.isLoading}
-                          error={debugger_.error}
-                        />
-                      ) : (
-                        <OutputPanel
-                          result={result}
-                          isRunning={isRunning}
-                          onCopy={() => navigator.clipboard.writeText(result?.stdout || "")}
-                          onDownload={() => {
-                            const blob = new Blob([result?.stdout || ""], { type: "text/plain" });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement("a");
-                            a.href = url;
-                            a.download = "output.txt";
-                            a.click();
-                            URL.revokeObjectURL(url);
-                          }}
-                          onClear={() => setResult(null)}
-                          onJumpToLine={jumpToLine}
-                        />
-                      )}
+                      <OutputPanel
+                        result={result}
+                        isRunning={isRunning}
+                        onCopy={() => navigator.clipboard.writeText(result?.stdout || "")}
+                        onDownload={() => {
+                          const blob = new Blob([result?.stdout || ""], { type: "text/plain" });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement("a");
+                          a.href = url;
+                          a.download = "output.txt";
+                          a.click();
+                          URL.revokeObjectURL(url);
+                        }}
+                        onClear={() => setResult(null)}
+                        onJumpToLine={jumpToLine}
+                      />
                     </div>
                   }
                 />

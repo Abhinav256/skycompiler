@@ -192,6 +192,8 @@ def _trace_calls(frame, event, arg):
         exc_snapshot = None
 
     if event in ("line", "call", "return"):
+        if event == "call" and _step_index == 0 and frame.f_code.co_name == "<module>":
+            return _trace_calls
         # Capture state
         cumulative_stdout = _captured_stdout.getvalue()
         variables = _capture_variables(frame)
