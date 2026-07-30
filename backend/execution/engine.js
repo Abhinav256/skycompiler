@@ -64,13 +64,18 @@ async function executeCode({ language, code, stdin }) {
         ? runInDocker({ image: config.dockerImage, workspaceDir, command, stdin, timeoutMs, memoryMb: config.memoryMb })
         : runLocally({ workspaceDir, command, stdin, timeoutMs });
 
-    const runResult = await runExec(config.run, config.timeoutMs);
+    // Compilation may need a little longer (especially for JVM languages),
+    // but submitted programs get a firm three-second runtime limit.
+    const runResult = await runExec(config.run, Math.min(config.timeoutMs, 3000));
     const inputRequired =
       !stdin.trim() &&
       language === "python" &&
       /EOFError: EOF when reading a line/.test(runResult.stderr);
 
-    result.stdout = runResult.stdout;
+    // Partial output from a terminated program is misleading (for example,
+    // thousands of repeated lines from an infinite loop). Show only the
+    // time-limit failure in that case.
+    result.stdout = runResult.timedOut ? "" : runResult.stdout;
     // An empty input stream is an expected user interaction, not a code error.
     // Hide Python's traceback and let the UI ask for stdin instead.
     result.stderr = inputRequired ? "" : runResult.stderr;

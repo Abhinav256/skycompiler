@@ -42,6 +42,11 @@ const getSavedSession = () => {
   }
 };
 
+const getInitialDarkMode = (savedSession) => {
+  if (typeof savedSession.darkMode === "boolean") return savedSession.darkMode;
+  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
+};
+
 export default function App() {
   const savedSession = getSavedSession();
   const [languages, setLanguages] = useState(LANG_FALLBACK);
@@ -61,7 +66,9 @@ export default function App() {
   const [fontSize, setFontSize] = useState(savedSession.fontSize || 15);
   const [minimapEnabled, setMinimapEnabled] = useState(savedSession.minimapEnabled || false);
   const [highContrast, setHighContrast] = useState(savedSession.highContrast || false);
-  const [darkMode, setDarkMode] = useState(savedSession.darkMode || false);
+  // New tabs follow the operating system. Once changed, the selected mode is
+  // kept in this tab's session storage and restored after refreshes.
+  const [darkMode, setDarkMode] = useState(() => getInitialDarkMode(savedSession));
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const editorRef = useRef(null);
