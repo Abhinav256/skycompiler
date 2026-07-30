@@ -1,6 +1,6 @@
 import { InputIcon, TrashIcon, ClockIcon, FileTextIcon } from "./Icons";
 
-export default function InputPanel({ value, onChange, onLoadSample, onClear, history, onSelectHistory }) {
+export default function InputPanel({ value, onChange, onClear, history, onSelectHistory }) {
   const lineCount = (value || "").split("\n").length;
 
   return (
@@ -40,10 +40,7 @@ export default function InputPanel({ value, onChange, onLoadSample, onClear, his
               ))}
             </select>
           )}
-          <button onClick={onLoadSample} className="panel-action-btn">
-            <FileTextIcon size={12} />
-            Sample
-          </button>
+
           <button onClick={onClear} className="panel-action-btn">
             <TrashIcon size={12} />
             Clear
@@ -53,7 +50,7 @@ export default function InputPanel({ value, onChange, onLoadSample, onClear, his
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Type or paste stdin here…"
+        placeholder="Enter Your Input here"
         className="flex-1 resize-none bg-transparent px-4 py-3 font-mono text-sm outline-none"
         style={{
           color: "var(--text-primary)",

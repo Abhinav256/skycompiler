@@ -73,7 +73,7 @@ function runInDocker({ image, workspaceDir, command, stdin, timeoutMs, memoryMb 
       resolve({
         stdout,
         stderr: killedByTimeout
-          ? stderr + `\n[Terminated: exceeded ${timeoutMs}ms time limit]`
+          ? stderr + `\n[Runtime Error: Time limit exceeded. This may be due to an infinite loop in your code.]`
           : stderr,
         exitCode: killedByTimeout ? 124 : code,
         timedOut: killedByTimeout,

@@ -137,6 +137,65 @@ export const SearchIcon = (props) =>
 export const ChevronDownIcon = (props) =>
   wrap(<polyline points="6 9 12 15 18 9" />, props);
 
+export const ChevronLeftIcon = (props) =>
+  wrap(<polyline points="15 18 9 12 15 6" />, props);
+
+export const ChevronRightIcon = (props) =>
+  wrap(<polyline points="9 18 15 12 9 6" />, props);
+
+export const SkipBackIcon = (props) =>
+  wrap(
+    <>
+      <polygon points="19 20 9 12 19 4 19 20" fill="currentColor" stroke="none" />
+      <line x1="5" y1="19" x2="5" y2="5" />
+    </>,
+    props
+  );
+
+export const SkipForwardIcon = (props) =>
+  wrap(
+    <>
+      <polygon points="5 4 15 12 5 20 5 4" fill="currentColor" stroke="none" />
+      <line x1="19" y1="5" x2="19" y2="19" />
+    </>,
+    props
+  );
+
+export const BugIcon = (props) =>
+  wrap(
+    <>
+      <rect x="8" y="6" width="8" height="14" rx="4" />
+      <path d="M19 12h2M3 12h2M8 7l-3-3M16 7l3-3M8 20l-2 2M16 20l2 2" />
+      <path d="M8 12h8" />
+    </>,
+    props
+  );
+
+export const XCircleIcon = (props) =>
+  wrap(
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <line x1="15" y1="9" x2="9" y2="15" />
+      <line x1="9" y1="9" x2="15" y2="15" />
+    </>,
+    props
+  );
+
+export const ListIcon = (props) =>
+  wrap(
+    <>
+      <line x1="8" y1="6" x2="21" y2="6" />
+      <line x1="8" y1="12" x2="21" y2="12" />
+      <line x1="8" y1="18" x2="21" y2="18" />
+      <line x1="3" y1="6" x2="3.01" y2="6" />
+      <line x1="3" y1="12" x2="3.01" y2="12" />
+      <line x1="3" y1="18" x2="3.01" y2="18" />
+    </>,
+    props
+  );
+
+
+
 // ── Panel Icons ───────────────────────────────────────────────
 export const TerminalIcon = (props) =>
   wrap(

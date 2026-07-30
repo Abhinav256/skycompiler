@@ -14,6 +14,8 @@ import {
   CheckCircleIcon,
   AlertCircleIcon,
   CodeIcon,
+  BugIcon,
+  XCircleIcon,
 } from "./Icons";
 
 const IconBtn = ({ label, shortcut, onClick, children, active }) => (
@@ -44,6 +46,11 @@ export default function TopNav({
   onOpenSettings,
   darkMode,
   onToggleTheme,
+  // Debug props
+  isDebugging = false,
+  isDebugLoading = false,
+  onDebug,
+  onStopDebug,
 }) {
   return (
     <header
@@ -89,7 +96,12 @@ export default function TopNav({
         {/* Run / Stop button — the hero */}
         {!isRunning ? (
           <Tooltip label="Run code" shortcut="⌘↵">
-            <button onClick={onRun} className="btn-run text-sm font-semibold px-5 py-2 rounded-control flex items-center gap-2">
+            <button
+              onClick={onRun}
+              disabled={isDebugging}
+              className="btn-run text-sm font-semibold px-5 py-2 rounded-control flex items-center gap-2"
+              style={isDebugging ? { opacity: 0.4, cursor: "not-allowed" } : {}}
+            >
               {runStatus === "success" ? (
                 <span className="animate-success-pop"><CheckCircleIcon size={15} /></span>
               ) : runStatus === "error" ? (
@@ -103,10 +115,39 @@ export default function TopNav({
         ) : (
           <Tooltip label="Stop execution">
             <button onClick={onStop} className="btn-stop text-sm font-semibold px-5 py-2 rounded-control flex items-center gap-2">
-              <span className="run-spinner">
-                <LoaderIcon size={14} />
-              </span>
+              <span className="run-spinner"><LoaderIcon size={14} /></span>
               <span>Running…</span>
+            </button>
+          </Tooltip>
+        )}
+
+        {/* Debug button — only shown for Python */}
+        {language === "python" && !isDebugging && !isRunning && (
+          <Tooltip label="Debug Python code step-by-step">
+            <button
+              onClick={onDebug}
+              disabled={isDebugLoading}
+              className="btn-debug text-sm font-semibold px-4 py-2 rounded-control flex items-center gap-2"
+            >
+              {isDebugLoading ? (
+                <span className="run-spinner"><LoaderIcon size={13} /></span>
+              ) : (
+                <BugIcon size={13} />
+              )}
+              <span>{isDebugLoading ? "Tracing…" : "Debug"}</span>
+            </button>
+          </Tooltip>
+        )}
+
+        {/* Stop Debug button — shown while debugging */}
+        {isDebugging && (
+          <Tooltip label="Exit debug session">
+            <button
+              onClick={onStopDebug}
+              className="btn-stop-debug text-sm font-semibold px-4 py-2 rounded-control flex items-center gap-2"
+            >
+              <XCircleIcon size={13} />
+              <span>Stop Debug</span>
             </button>
           </Tooltip>
         )}
